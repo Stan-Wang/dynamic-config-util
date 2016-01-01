@@ -13,7 +13,7 @@ import java.util.*;
 public abstract class ModifyAction {
 
 
-    protected void OnModify(File file) {
+    public void OnModify(File file) {
 
         Configuration last = Configuration.getLastConfiguration();
 
