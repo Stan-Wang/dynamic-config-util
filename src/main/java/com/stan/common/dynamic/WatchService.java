@@ -1,6 +1,7 @@
 package com.stan.common.dynamic;
 
 import com.stan.common.dynamic.action.ModifyAction;
+import com.stan.common.dynamic.action.ModifyHandler;
 import com.stan.common.dynamic.config.Configuration;
 
 import java.io.File;
@@ -24,7 +25,16 @@ public class WatchService {
 
     public static java.nio.file.WatchService watchService;
 
+    /**
+     * 文件名 及 变更处理 映射
+     */
     private Map<String, ModifyAction> actionMap = new HashMap<>();
+
+
+    /**
+     * 属性Key 及 变更处理 映射
+     */
+    private Map<String, ModifyHandler> handlerMap = new HashMap<>();
 
 
     static {
@@ -35,7 +45,13 @@ public class WatchService {
         }
     }
 
-
+    /**
+     * 注册文件监听处理
+     *
+     * @param path 需要监听的目录
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void watchDir(Path path) throws IOException, InterruptedException {
 
         path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -73,13 +89,56 @@ public class WatchService {
 
     }
 
+    /**
+     * 通用变更处理事件注册
+     *
+     * @param file              配置文件
+     * @param modifyAction      处理方法
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void watchFile(File file, ModifyAction modifyAction) throws IOException, InterruptedException {
         actionMap.put(file.getName(), modifyAction);
         watchDir(Paths.get(file.getParent()));
     }
 
+
     /**
-     * @param args
+     * 基于 配置键 的变更事件注册入口
+     *
+     * @param file          配置文件
+     * @param handlers      处理方法
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void addHandler(File file,  ModifyHandler ... handlers) throws IOException, InterruptedException {
+
+        if(handlers.length > 0){
+            for(ModifyHandler handler : handlers){
+                handlerMap.put(handler.getKey(),handler);
+            }
+
+
+            actionMap.put(file.getName(), new ModifyAction() {
+                @Override
+                public void OnModify(String key, String value) {
+                    handlerMap.get(key).handle(value);
+                }
+            });
+
+            watchDir(Paths.get(file.getParent()));
+        }
+
+    }
+
+
+
+    /**
+     * 测试方法
+     *
+     * @param args gs
      */
     public static void main(String[] args) {
 
