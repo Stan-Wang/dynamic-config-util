@@ -124,7 +124,10 @@ public class WatchService {
             actionMap.put(file.getName(), new ModifyAction() {
                 @Override
                 public void OnModify(String key, String value) {
-                    handlerMap.get(key).handle(value);
+                    ModifyHandler handler = handlerMap.get(key);
+                    if(handler != null){
+                        handler.handle(value);
+                    }
                 }
             });
 
