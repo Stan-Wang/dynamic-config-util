@@ -52,7 +52,7 @@ public class Configuration {
     public Configuration(String fileName, String encoding) {
         InputStream inputStream = null;
         try {
-            inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);		// properties.load(Prop.class.getResourceAsStream(fileName));
+            inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
             if (inputStream == null)
                 throw new IllegalArgumentException("Properties file not found in classpath: " + fileName);
             properties = new Properties();
